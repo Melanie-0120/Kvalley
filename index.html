@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>補助資格查詢</title>
+    <style>
+        /* 溫柔的配色 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f8fb;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        main {
+            margin: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>補助資格查詢</h1>
+    <p>輸入所營事業資料前三碼，查詢是否符合申請資格</p>
+</header>
+
+<main>
+    <!-- 用戶輸入欄位 -->
+    <form id="gpa-form">
+        <label for="company-code">前三碼：</label>
+        <input type="text" id="company-code" name="company-code" required>
+        <button type="submit">查詢資格</button>
+    </form>
+
+    <!-- 顯示結果的地方 -->
+    <div id="result"></div>
+</main>
+
+<footer>
+    <p>&copy; 2025 智谷網絡股份有限公司.行銷實習生Melanie.</p>
+
+<script>
+// 符合資格的資料
+const data = [
+    { "編碼": "G45", "大類": "G批發及零售業" },
+    { "編碼": "G46", "大類": "G批發及零售業" },
+    { "編碼": "G47", "大類": "G批發及零售業" },
+    { "編碼": "G48", "大類": "G批發及零售業" },
+    { "編碼": "H49", "大類": "H運輸及倉儲業" },
+    { "編碼": "H50", "大類": "H運輸及倉儲業" },
+    { "編碼": "H51", "大類": "H運輸及倉儲業" },
+    { "編碼": "H52", "大類": "H運輸及倉儲業" },
+    { "編碼": "H53", "大類": "H運輸及倉儲業" },
+    { "編碼": "H54", "大類": "H運輸及倉儲業" },
+    { "編碼": "I55", "大類": "I住宿及餐飲業" },
+    { "編碼": "I56", "大類": "I住宿及餐飲業" },
+    { "編碼": "J58", "大類": "J出版影音及資通訊業" },
+    { "編碼": "J59", "大類": "J出版影音及資通訊業" },
+    { "編碼": "J60", "大類": "J出版影音及資通訊業" },
+    { "編碼": "J61", "大類": "J出版影音及資通訊業" },
+    { "編碼": "L67", "大類": "L不動產業" },
+    { "編碼": "L68", "大類": "L不動產業" },
+    { "編碼": "M73", "大類": "M專業、科學及技術服務業" },
+    { "編碼": "M74", "大類": "M專業、科學及技術服務業" },
+    { "編碼": "M76", "大類": "M專業、科學及技術服務業" },
+    { "編碼": "N77", "大類": "N支援服務業" },
+    { "編碼": "N78", "大類": "N支援服務業" },
+    { "編碼": "N79", "大類": "N支援服務業" },
+    { "編碼": "N80", "大類": "N支援服務業" },
+    { "編碼": "N81", "大類": "N支援服務業" },
+    { "編碼": "N82", "大類": "N支援服務業" },
+    { "編碼": "P85", "大類": "P教育業" },
+    { "編碼": "Q86", "大類": "Q醫療保健及社會工作服務業" },
+    { "編碼": "Q87", "大類": "Q醫療保健及社會工作服務業" },
+    { "編碼": "Q88", "大類": "Q醫療保健及社會工作服務業" },
+    { "編碼": "R90", "大類": "R藝術、娛樂及休閒服務業" },
+    { "編碼": "R91", "大類": "R藝術、娛樂及休閒服務業" },
+    { "編碼": "R92", "大類": "R藝術、娛樂及休閒服務業" },
+    { "編碼": "R93", "大類": "R藝術、娛樂及休閒服務業" },
+    { "編碼": "S94", "大類": "S其他服務業" },
+    { "編碼": "S95", "大類": "S其他服務業" },
+    { "編碼": "S96", "大類": "S其他服務業" },
+    { "編碼": "C08", "大類": "C製造業" },
+    { "編碼": "C09", "大類": "C製造業" },
+    { "編碼": "C10", "大類": "C製造業" },
+    { "編碼": "C11", "大類": "C製造業" },
+    { "編碼": "C12", "大類": "C製造業" },
+    { "編碼": "C13", "大類": "C製造業" },
+    { "編碼": "C14", "大類": "C製造業" },
+    { "編碼": "C15", "大類": "C製造業" },
+    { "編碼": "C16", "大類": "C製造業" },
+    { "編碼": "C17", "大類": "C製造業" },
+    { "編碼": "C18", "大類": "C製造業" },
+    { "編碼": "C19", "大類": "C製造業" },
+    { "編碼": "C20", "大類": "C製造業" },
+    { "編碼": "C21", "大類": "C製造業" },
+    { "編碼": "C22", "大類": "C製造業" },
+    { "編碼": "C23", "大類": "C製造業" },
+    { "編碼": "C24", "大類": "C製造業" },
+    { "編碼": "C25", "大類": "C製造業" },
+    { "編碼": "C26", "大類": "C製造業" },
+    { "編碼": "C27", "大類": "C製造業" },
+    { "編碼": "C28", "大類": "C製造業" },
+    { "編碼": "C29", "大類": "C製造業" },
+    { "編碼": "C30", "大類": "C製造業" },
+    { "編碼": "C31", "大類": "C製造業" },
+    { "編碼": "C32", "大類": "C製造業" },
+    { "編碼": "C33", "大類": "C製造業" },
+    { "編碼": "C34", "大類": "C製造業" }
+]
+
+
+// 當表單提交時，觸發查詢
+document.getElementById('gpa-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // 獲取用戶輸入的統編前三碼
+    let companyCode = document.getElementById('company-code').value.toUpperCase();
+
+    // 查詢符合資格的資料
+    let result = data.find(entry => entry.編碼 === companyCode);
+
+    // 顯示查詢結果
+    if (result) {
+        document.getElementById('result').textContent = `符合資格，行業類別：${result.大類}，需確認最近6個月公司投保人數30人以下`;
+    } else {
+        document.getElementById('result').textContent = "不符合資格";
+    }
+});
+</script>
+
+</body>
+</html>
